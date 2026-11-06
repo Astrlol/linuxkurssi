@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Viikko 2 – Kävijälaskuri</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 680px; margin: 3rem auto; padding: 0 1rem;
+           background: #0f172a; color: #e2e8f0; line-height: 1.6; }
+    h1 { color: #38bdf8; }
+    .laskuri { font-size: 3rem; font-weight: bold; color: #facc15; }
+    section { background: #1e293b; border-radius: 12px; padding: 1rem 1.5rem; margin: 1.5rem 0; }
+    a { color: #38bdf8; }
+  </style>
+</head>
+<body>
+  <h1>Linuxkurssi – viikko 2</h1>
+  <p>Tämä sivu on Python (Flask) -sovellus, jota Nginx välittää polussa <code>/viikko2/</code>.</p>
+
+  <section>
+    <p>Käyntejä yhteensä:</p>
+    <p class="laskuri">{{ count }}</p>
+  </section>
+
+  <section>
+    <h2>Miten laskuri toimii</h2>
+    <p><strong>Tietokanta:</strong> SQLite. Tietokanta on yksi tiedosto (<code>visits.db</code>) palvelimella,
+       joten erillistä tietokantapalvelua ei tarvitse käynnistää.</p>
+    <p><strong>Tallennustapa:</strong> jokainen sivun lataus lisää <code>visits</code>-tauluun rivin, jossa on aikaleima.
+       Sivulla näkyvä luku on taulun rivien määrä (<code>SELECT COUNT(*)</code>).</p>
+    <p><strong>Uudelleenkäynnistystesti:</strong> TÄYDENNÄ TÄHÄN TESTIN TULOS.</p>
+  </section>
+
+  <p><a href="https://github.com/Astrlol/linuxkurssi">Lähdekoodi GitHubissa</a></p>
+</body>
+</html>
