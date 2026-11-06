@@ -1,0 +1,2 @@
+# linuxkurssi
+pythonscriptit jne 
