@@ -1,36 +1,172 @@
 <!DOCTYPE html>
-<html lang="fi">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Viikko 2 – Kävijälaskuri</title>
+  <title>Week 2 - Gigachad</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 680px; margin: 3rem auto; padding: 0 1rem;
-           background: #0f172a; color: #e2e8f0; line-height: 1.6; }
-    h1 { color: #38bdf8; }
-    .laskuri { font-size: 3rem; font-weight: bold; color: #facc15; }
-    section { background: #1e293b; border-radius: 12px; padding: 1rem 1.5rem; margin: 1.5rem 0; }
-    a { color: #38bdf8; }
+    body {
+      background-color: #000000;
+      color: #cdd6f4;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    h1 { color: #89b4fa; }
+    h2 { color: #f5c2e7; }
+    a  { color: #94e2d5; }
+    code {
+      background-color: #313244;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    img {
+      border-radius: 8px;
+      max-width: 100%;
+    }
+    .asettelu {
+      display: flex;
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: flex-start;
+    }
+    .sisalto {
+      flex: 1;
+    }
+    .sivupalkki {
+      width: 300px;
+      position: sticky;
+      top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .sivupalkki img {
+      width: 100%;
+      height: 85vh;
+      object-fit: cover;
+    }
+    .laskuri {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #f9e2af;
+      margin: 0;
+    }
+    .reload-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 24px;
+      border: 1px solid #45475a;
+      border-radius: 999px;
+      background: #1e1e2e;
+      color: #cdd6f4;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .reload-button:hover {
+      background: #313244;
+      border-color: #94e2d5;
+      transform: translateY(-2px);
+    }
+    .reload-button .ikoni {
+      display: inline-block;
+      transition: transform 0.6s;
+    }
+    .reload-button:hover .ikoni {
+      transform: rotate(360deg);
+    }
+    .github-linkki {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .github-linkki img {
+      width: 24px;
+      height: 24px;
+      border-radius: 0;
+    }
+    .github-linkki:hover {
+      text-decoration: underline;
+    }
+    .keskella {
+      text-align: center;
+    }
+    .levea {
+      width: 100%;
+    }
+    section {
+      background: #313244;
+      border: 1px solid #45475a;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    @media (max-width: 900px) {
+      .sivupalkki { display: none; }
+    }
   </style>
 </head>
 <body>
-  <h1>Linuxkurssi – viikko 2</h1>
-  <p>Tämä sivu on Python (Flask) -sovellus, jota Nginx välittää polussa <code>/viikko2/</code>.</p>
+  <div class="asettelu">
 
-  <section>
-    <p>Käyntejä yhteensä:</p>
-    <p class="laskuri">{{ count }}</p>
-  </section>
+    <aside class="sivupalkki">
+      <img src="static/gifs/jordan.gif" alt="jordan">
+    </aside>
 
-  <section>
-    <h2>Miten laskuri toimii</h2>
-    <p><strong>Tietokanta:</strong> SQLite. Tietokanta on yksi tiedosto (<code>visits.db</code>) palvelimella,
-       joten erillistä tietokantapalvelua ei tarvitse käynnistää.</p>
-    <p><strong>Tallennustapa:</strong> jokainen sivun lataus lisää <code>visits</code>-tauluun rivin, jossa on aikaleima.
-       Sivulla näkyvä luku on taulun rivien määrä (<code>SELECT COUNT(*)</code>).</p>
-    <p><strong>Uudelleenkäynnistystesti:</strong> TÄYDENNÄ TÄHÄN TESTIN TULOS.</p>
-  </section>
+    <main class="sisalto">
+      <h1>Week 2 Gigachad's server</h1>
+      <p>Week 2 Project!</p>
+      <img src="static/gifs/face.gif" alt="gigachad">
 
-  <p><a href="https://github.com/Astrlol/linuxkurssi">Lähdekoodi GitHubissa</a></p>
+      <h2>1. Visitor Counter</h2>
+      <section class="keskella">
+        <p>Total visits</p>
+        <p class="laskuri">{{ count }}</p>
+        <p>Each visit increments the counter by 1, including page refreshes.</p>
+        <a class="reload-button" href="./">
+          Try it: +1 visit <span class="ikoni" aria-hidden="true">↻</span>
+        </a>
+      </section>
+
+      <h2>2. How does the counter work?</h2>
+      <section>
+        <ul>
+          <li><strong>Database:</strong> MySQL, running as its own service on the server and started automatically by systemd.</li>
+          <li><strong>Storage:</strong> every page load inserts a row with a timestamp into the <code>visits</code> table. The number shown is the row count (<code>SELECT COUNT(*)</code>).</li>
+          <li><strong>Stack:</strong> Nginx → Gunicorn → Flask (Python) → MySQL. The database password is stored on the server, not in GitHub.</li>
+        </ul>
+      </section>
+
+      <h2>3. Restart test</h2>
+      <section>
+        <p>FILL IN AFTER THE TEST: Before rebooting the virtual machine (<code>sudo reboot</code>) the counter was 8.
+           After the reboot Nginx, MySQL and the Python app started automatically, the page opened normally
+           and the counter continued from 9.</p>
+      </section>
+
+      <p class="keskella">
+        <a class="github-linkki" href="https://github.com/Astrlol/linuxkurssi">
+          <img src="static/github.png" alt="">
+          Source code on GitHub
+        </a>
+      </p>
+
+      <img class="levea" src="static/gifs/laughing.gif" alt="laughing">
+
+      <p class="keskella"><a href="../">← Back to home page</a></p>
+    </main>
+
+    <aside class="sivupalkki">
+      <img src="static/gifs/jordan.gif" alt="jordan">
+    </aside>
+
+  </div>
 </body>
 </html>
