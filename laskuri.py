@@ -1,23 +1,28 @@
 import os
-import sqlite3
+import pymysql
 from flask import Flask, render_template
 
-DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "visits.db")
 app = Flask(__name__)
 
 
 def db():
-    conn = sqlite3.connect(DB)
-    conn.execute("""CREATE TABLE IF NOT EXISTS visits (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        visited_at TEXT DEFAULT CURRENT_TIMESTAMP
-    )""")
-    return conn
+    return pymysql.connect(
+        unix_socket="/run/mysqld/mysqld.sock",
+        user=os.environ["DB_USER"],
+        password=os.environ["DB_PASSWORD"],
+        database=os.environ["DB_NAME"],
+        autocommit=True,
+    )
 
 
 @app.get("/")
 def index():
-    with db() as conn:
-        conn.execute("INSERT INTO visits DEFAULT VALUES")
-        count = conn.execute("SELECT COUNT(*) FROM visits").fetchone()[0]
+    conn = db()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("INSERT INTO visits () VALUES ()")
+            cur.execute("SELECT COUNT(*) FROM visits")
+            count = cur.fetchone()[0]
+    finally:
+        conn.close()
     return render_template("index.html", count=count)
