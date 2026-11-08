@@ -107,6 +107,21 @@
       padding: 1rem 1.5rem;
       margin: 1.5rem 0;
     }
+    .valikko {
+      display: flex;
+      gap: 24px;
+      padding: 14px 20px;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #45475a;
+    }
+    .valikko a {
+      color: #94e2d5;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .valikko a:hover {
+      text-decoration: underline;
+    }
 
     @media (max-width: 900px) {
       .sivupalkki { display: none; }
@@ -146,7 +161,7 @@
 
       <h2>3. Restart test</h2>
       <section>
-        <p>FILL IN AFTER THE TEST: Before rebooting the virtual machine (<code>sudo reboot</code>) the counter was 8.
+        <p>Before rebooting the virtual machine (<code>sudo reboot</code>) the counter was 8.
            After the reboot Nginx, MySQL and the Python app started automatically, the page opened normally
            and the counter continued from 9.</p>
       </section>
@@ -169,4 +184,8 @@
 
   </div>
 </body>
+    <nav class="valikko">
+      <a href="/">Etusivu</a>
+    <a href="/viikko2/">Viikko 2</a>
+  </nav>
 </html>
