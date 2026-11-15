@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+cd "$(dirname "$0")" || exit 1
 
 DISK() {
         local space="$1"
@@ -16,12 +17,14 @@ ramy=$(free --mega | grep Mem | awk '{print $2 }')
 ramk=$(free --mega | grep Mem | awk '{print $7}')
 disk_status=$(DISK "$diskspace")
 
-echo "Current time: $times"
-echo "Server's uptime: $uptime"
-echo "Current server's diskspace: $diskspace %"
-echo "Server's RAM: $ramy MB"
-echo "Server's RAM left $ramk MB"
-echo "Disk space status: $disk_status"
+sed -e "s/{{TIME}}/$times/g" \
+    -e "s/{{UPTIME}}/$uptime/g" \
+    -e "s/{{DISK}}/$diskspace/g" \
+    -e "s/{{DISK_STATUS}}/$disk_status/g" \
+    -e "s/{{RAM_TOTAL}}/$ramy/g" \
+    -e "s/{{RAM_AVAILABLE}}/$ramk/g" \
+    template.html > /var/www/html/viikko3/index.html.tmp \
+    && mv /var/www/html/viikko3/index.html.tmp /var/www/html/viikko3/index.html
 
 # Tests which were needed
 # DISK "50"
