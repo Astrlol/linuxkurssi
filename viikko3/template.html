@@ -147,7 +147,11 @@
         <p><strong>Disk space status:</strong> the function <code>DISK</code> gets the usage percentage and uses an
            <code>if</code> statement with <code>-ge 80</code>: below 80 % it returns <span class="OK">OK</span>,
            80 % or more returns <span class="WARNING">WARNING</span>.</p>
-        <p><strong>Schedule:</strong> FILL IN after the schedule is set up.</p>
+                <p><strong>Schedule:</strong> a systemd timer (<code>status-report.timer</code>) runs
+           <code>status-report.service</code> once per minute (<code>OnCalendar=*-*-* *:*:00</code>).
+           The service runs <code>status.sh</code> as the user <code>ubuntu</code>.
+           The timer is enabled with <code>systemctl enable</code>, so it starts automatically after a reboot.
+           Both files are in the <code>viikko3/systemd/</code> folder in the repository.</p>
       </section>
 
       <h2>4. Test results</h2>
@@ -159,10 +163,21 @@
               90 % → <span class="WARNING">WARNING</span>, as expected. The real value is used again after the test.</li>
           <li><strong>Automatic updates:</strong> The generation time changed from 16:30:00 to 16:31:00 and 16:32:00 without running the script manually.</li>
           <li><strong>Reboot test:</strong> After <code>sudo reboot</code> the page opened normally and the report kept updating every minute.”</li>
+
         </ul>
       </section>
 
-      <h2>5. What I learned</h2>
+
+            <h2>5. Problem I solved</h2>
+      <section>
+        <p> The timing script didn't run and the log told <code> Permission Denied</code> why? the directory was root owned
+        and the script was run as ubuntu.
+        so how did I fix it? with <code>chown -R ubuntu:ubuntu</code> </p>
+      </section>
+
+
+
+      <h2>6. What I learned</h2>
       <section>
         <p>For comparing numbers in Bash, <code>-gt</code> means "greater than" and <code>-ge</code> means
            "greater than or equal". The assignment says WARNING at 80 % or more, so <code>-gt 80</code> would have
