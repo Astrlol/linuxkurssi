@@ -1,0 +1,3 @@
+# Varmuuskopioi palvelin A:n /var/www/html palvelimelle B kerran tunnissa, minuutilla 15 (UTC)
+
+15 * * * * varmuuskopio /usr/local/bin/nettisivun-varmuuskopiointi
