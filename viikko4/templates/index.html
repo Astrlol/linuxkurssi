@@ -3,23 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Week 2 - Gigachad</title>
+  <title>Week 4 - Read-only replica</title>
   <style>
     body {
       background-color: #000000;
       color: #cdd6f4;
       font-family: Arial, sans-serif;
       line-height: 1.6;
-      margin: 40px auto;
-      padding: 0 20px;
+      margin: 30px 0;
+      padding: 0 16px;
     }
-    h1 { color: #89b4fa; }
-    h2 { color: #f5c2e7; }
+    h1 { color: #89b4fa; margin-bottom: 0.3rem; }
+    h2 {
+      color: #f5c2e7;
+      margin: 2.5rem 0 0.8rem;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    h2 .nro {
+      font-size: 0.8rem;
+      font-weight: normal;
+      color: #6c7086;
+      font-family: monospace;
+    }
+    h3 {
+      color: #94e2d5;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 1.2rem 0 0.5rem;
+    }
     a  { color: #94e2d5; }
     code {
-      background-color: #313244;
-      padding: 2px 6px;
+      background-color: #1e1e2e;
+      padding: 1px 6px;
       border-radius: 4px;
+      font-size: 0.9em;
     }
     img {
       border-radius: 8px;
@@ -27,59 +47,284 @@
     }
     .asettelu {
       display: flex;
-      gap: 30px;
-      max-width: 1200px;
+      gap: 40px;
+      max-width: none;
       margin: 0 auto;
       align-items: flex-start;
     }
     .sisalto {
       flex: 1;
+      min-width: 0;
+      max-width: 800px;
+      margin: 0 auto;
     }
     .sivupalkki {
-      width: 300px;
+      width: 400px;
+      flex-shrink: 0;
       position: sticky;
       top: 20px;
+      height: calc(100vh - 40px);
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
     .sivupalkki img {
       width: 100%;
-      height: 85vh;
+      flex: 1;
+      min-height: 0;
       object-fit: cover;
     }
-    .laskuri {
-      font-size: 3rem;
+    .valikuva {
+      display: block;
+      max-width: 460px;
+      margin: 1.5rem auto;
+    }
+    section {
+      background: #313244;
+      border: 1px solid #45475a;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .keskella { text-align: center; }
+    .levea { width: 100%; }
+    .muted { color: #a6adc8; font-size: 0.88rem; }
+
+    /* Header badges */
+    .merkit {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0.8rem 0 1.5rem;
+    }
+    .merkki {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
       font-weight: bold;
-      color: #f9e2af;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid currentColor;
+    }
+    .merkki.replika { color: #f38ba8; background: rgba(243, 139, 168, 0.12); }
+    .merkki.live    { color: #a6e3a1; background: rgba(166, 227, 161, 0.12); }
+    .merkki.info    { color: #89b4fa; background: rgba(137, 180, 250, 0.12); }
+
+    /* Counter */
+    .laskuri-osio {
+      text-align: center;
+      border: 2px solid #f38ba8;
+      background: #313244;
+    }
+    .laskuri-osio .varoitus {
+      color: #f38ba8;
+      font-weight: bold;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       margin: 0;
     }
-    .reload-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 24px;
-      border: 1px solid #45475a;
-      border-radius: 999px;
-      background: #1e1e2e;
-      color: #cdd6f4;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    .laskuri {
+      font-size: 4.5rem;
+      font-weight: bold;
+      color: #f9e2af;
+      margin: 0.2rem 0;
+      line-height: 1.1;
     }
-    .reload-button:hover {
-      background: #313244;
-      border-color: #94e2d5;
-      transform: translateY(-2px);
+    .napit {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 1rem;
     }
-    .reload-button .ikoni {
+    .nappi {
       display: inline-block;
-      transition: transform 0.6s;
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 1px solid #45475a;
+      background: #1e1e2e;
+      text-decoration: none;
+      font-size: 0.9rem;
     }
-    .reload-button:hover .ikoni {
-      transform: rotate(360deg);
+    .nappi:hover { border-color: #94e2d5; }
+    .nappi.nyt { color: #a6adc8; cursor: default; }
+
+    /* Status tiles */
+    .ruudut {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin: 1.5rem 0;
     }
+    .ruutu {
+      background: #1e1e2e;
+      border: 1px solid #45475a;
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+    }
+    .ruutu .otsake {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #a6adc8;
+    }
+    .ruutu .arvo { font-size: 1.15rem; font-weight: bold; }
+    .ruutu .arvo.hyva { color: #a6e3a1; }
+    .ruutu .arvo.esto { color: #f38ba8; }
+
+    /* Architecture diagram */
+    .kaavio {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    .palvelin {
+      background: #1e1e2e;
+      border: 1px solid #45475a;
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+    }
+    .palvelin .nimi { color: #94e2d5; font-weight: bold; }
+    .palvelin ul { margin: 0.3rem 0 0; padding-left: 1.1rem; font-size: 0.9rem; }
+    .nuolet {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: #a6adc8;
+    }
+    .nuoli { font-size: 1.6rem; line-height: 1; }
+    .nuoli.repl { color: #a6e3a1; }
+    .nuoli.backup { color: #89b4fa; }
+
+    /* Steps */
+    .vaiheet {
+      list-style: none;
+      counter-reset: vaihe;
+      padding: 0;
+      margin: 0;
+    }
+    .vaiheet li {
+      counter-increment: vaihe;
+      position: relative;
+      padding: 0.6rem 0 0.6rem 3rem;
+      border-bottom: 1px solid #45475a;
+    }
+    .vaiheet li:last-child { border-bottom: none; }
+    .vaiheet li::before {
+      content: counter(vaihe);
+      position: absolute;
+      left: 0;
+      top: 0.65rem;
+      width: 1.9rem;
+      height: 1.9rem;
+      border-radius: 50%;
+      border: 1px solid #89b4fa;
+      color: #89b4fa;
+      text-align: center;
+      line-height: 1.9rem;
+      font-size: 0.85rem;
+    }
+    .vaiheet strong { display: block; color: #cdd6f4; }
+    .vaiheet span { color: #a6adc8; font-size: 0.92rem; }
+
+    /* Two cards side by side */
+    .kortit {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .kortti {
+      background: #1e1e2e;
+      border: 1px solid #45475a;
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+    }
+    .kortti .nimi { color: #94e2d5; font-weight: bold; margin-bottom: 0.4rem; }
+    .polut { margin: 0; }
+    .polut dt { font-family: monospace; font-size: 0.85rem; color: #f9e2af; word-break: break-all; }
+    .polut dd { margin: 0 0 0.55rem; font-size: 0.85rem; color: #a6adc8; }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 7px 8px;
+      border-bottom: 1px solid #45475a;
+      vertical-align: top;
+    }
+    th {
+      color: #a6adc8;
+      font-weight: normal;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    tr:last-child td { border-bottom: none; }
+    td.rivi-otsake { color: #a6adc8; white-space: nowrap; }
+
+    /* Small labels */
+    .lappu {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.82rem;
+      background: #1e1e2e;
+      border: 1px solid #45475a;
+    }
+    .pass { color: #a6e3a1; border-color: #a6e3a1; }
+    .todo { color: #f9e2af; border-color: #f9e2af; }
+
+    /* Callout */
+    .huomio {
+      border-left: 3px solid #f38ba8;
+      background: #1e1e2e;
+      border-radius: 0 8px 8px 0;
+      padding: 0.7rem 1rem;
+      margin: 1rem 0 0;
+    }
+    .huomio p { margin: 0.3rem 0; }
+    .huomio .otsikko { color: #f38ba8; font-weight: bold; }
+
+    /* Expandable details */
+    details {
+      border-top: 1px solid #45475a;
+      margin-top: 0.8rem;
+      padding-top: 0.6rem;
+    }
+    summary {
+      cursor: pointer;
+      color: #94e2d5;
+      font-size: 0.9rem;
+    }
+    details ul { font-size: 0.9rem; margin: 0.5rem 0 0; padding-left: 1.2rem; }
+    details li { margin-bottom: 0.3rem; }
+
+    /* Problem / cause / fix */
+    .ongelma {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 6px 16px;
+      font-size: 0.92rem;
+    }
+    .ongelma .avain {
+      color: #a6adc8;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding-top: 3px;
+    }
+
+    /* GitHub link */
     .github-linkki {
       display: inline-flex;
       align-items: center;
@@ -91,79 +336,300 @@
       height: 24px;
       border-radius: 0;
     }
-    .github-linkki:hover {
-      text-decoration: underline;
-    }
-    .keskella {
-      text-align: center;
-    }
-    .levea {
-      width: 100%;
-    }
-    section {
-      background: #313244;
-      border: 1px solid #45475a;
-      border-radius: 12px;
-      padding: 1rem 1.5rem;
-      margin: 1.5rem 0;
-    }
+    .github-linkki:hover { text-decoration: underline; }
+
+    /* Navigation */
     .valikko {
       display: flex;
+      flex-wrap: wrap;
       gap: 24px;
+      max-width: none;
+      margin: 30px auto 0;
       padding: 14px 20px;
-      margin-bottom: 30px;
-      border-bottom: 1px solid #45475a;
+      border-top: 1px solid #45475a;
     }
     .valikko a {
       color: #94e2d5;
       text-decoration: none;
       font-weight: bold;
     }
-    .valikko a:hover {
-      text-decoration: underline;
-    }
+    .valikko a:hover { text-decoration: underline; }
 
+    @media (max-width: 1100px) {
+      .sivupalkki { width: 200px; }
+    }
     @media (max-width: 900px) {
       .sivupalkki { display: none; }
+      .kaavio, .kortit { grid-template-columns: 1fr; }
+      .nuolet { flex-direction: row; justify-content: center; }
     }
   </style>
 </head>
 <body>
   <div class="asettelu">
-
     <aside class="sivupalkki">
-      <img src="static/gifs/jordan.gif" alt="jordan">
+      <img src="static/gifs/ryan.gif" alt="ryan">
     </aside>
 
     <main class="sisalto">
-      <h1>Week 2 Gigachad's server</h1>
-      <p>Week 2 Project!</p>
-      <img src="static/gifs/face.gif" alt="gigachad">
+      <h1>Week 4: Gigachad's replica server</h1>
+      <p class="muted">Server B (gigalinux) &middot; hourly backups of server A &middot; live copy of A's database</p>
 
-      <h2>1. Visitor Counter</h2>
-      <section class="keskella">
-        <p>Total visits</p>
+      <div class="merkit">
+        <span class="merkki replika">Read-only replica</span>
+        <span class="merkki live">Replication: live</span>
+        <span class="merkki info">Backups: hourly</span>
+      </div>
+
+      <img class="levea" src="static/gifs/ryanstare.gif" alt="ryanstare">
+
+      <!-- 1. Counter -->
+      <h2><span class="nro">01</span> Replicated counter</h2>
+      <section class="laskuri-osio">
+        <p class="varoitus">Read-only replica &middot; loading this page changes nothing</p>
         <p class="laskuri">{{ count }}</p>
-        <p>Each visit increments the counter by 1, including page refreshes.</p>
-        <a class="reload-button" href="./">
-          Try it: +1 visit <span class="ikoni" aria-hidden="true">↻</span>
-        </a>
+        <p class="muted">Visits recorded on server A, read from B's own copy of the database
+           as <code>lukija</code> (SELECT only).</p>
+        <p>Load A's counter, then reload this page. The new number appears here within seconds.</p>
+        <div class="napit">
+          <a class="nappi" href="http://195.148.20.88/viikko2/">Server A: counter page (+1) &rarr;</a>
+          <a class="nappi nyt" href="/viikko4/">Server B: this page (read-only)</a>
+        </div>
       </section>
 
-      <h2>2. How does the counter work?</h2>
+      <div class="ruudut">
+        <div class="ruutu">
+          <div class="otsake">Writes on B</div>
+          <div class="arvo esto">Blocked</div>
+        </div>
+        <div class="ruutu">
+          <div class="otsake">Replication</div>
+          <div class="arvo hyva">GTID over SSL</div>
+        </div>
+        <div class="ruutu">
+          <div class="otsake">Backups</div>
+          <div class="arvo">Hourly at :15</div>
+        </div>
+        <div class="ruutu">
+          <div class="otsake">Kept</div>
+          <div class="arvo">24 versions</div>
+        </div>
+      </div>
+
+      <img class="levea" src="static/gifs/silence.gif" alt="silence">
+
+      <!-- 2. Architecture -->
+      <h2><span class="nro">02</span> The setup</h2>
       <section>
-        <ul>
-          <li><strong>Database:</strong> MySQL, running as its own service on the server and started automatically by systemd.</li>
-          <li><strong>Storage:</strong> every page load inserts a row with a timestamp into the <code>visits</code> table. The number shown is the row count (<code>SELECT COUNT(*)</code>).</li>
-          <li><strong>Stack:</strong> Nginx → Gunicorn → Flask (Python) → MySQL. The database password is stored on the server, not in GitHub.</li>
-        </ul>
+        <div class="kaavio">
+          <div class="palvelin">
+            <div class="nimi">A &middot; nuuttilinux</div>
+            <ul>
+              <li><code>/viikko2/</code> counter, +1 per load</li>
+              <li><code>/viikko3/</code> status report</li>
+              <li>MySQL source</li>
+            </ul>
+          </div>
+          <div class="nuolet">
+            <div><span class="nuoli repl">&rarr;</span><br>replication</div>
+            <div><span class="nuoli backup">&larr;</span><br>hourly backup</div>
+          </div>
+          <div class="palvelin">
+            <div class="nimi">B &middot; gigalinux</div>
+            <ul>
+              <li><code>/viikko4/</code> this page</li>
+              <li>MySQL replica, read-only</li>
+              <li>Backups + cron</li>
+            </ul>
+          </div>
+        </div>
+        <p class="muted">Server-to-server traffic stays in cPouta's private network.
+           Only ports 22 and 80 are open to the internet. MySQL is not.</p>
       </section>
 
-      <h2>3. Restart test</h2>
+      <img class="levea" src="static/gifs/terry.gif" alt="terry">
+
+      <!-- 3. How B was created -->
+      <h2><span class="nro">03</span> How B was created</h2>
       <section>
-        <p>Before rebooting the virtual machine (<code>sudo reboot</code>) the counter was 8.
-           After the reboot Nginx, MySQL and the Python app started automatically, the page opened normally
-           and the counter continued from 9.</p>
+        <ol class="vaiheet">
+          <li><strong>Snapshot of A</strong>
+              <span>Launched as a new cPouta instance with the same key and security group, plus its own floating IP. Hostname: <code>gigalinux</code>.</span></li>
+          <li><strong>Turned off A's jobs</strong>
+              <span><code>laskuri</code> and <code>status-report.timer</code> disabled. B must never write to its own database.</span></li>
+          <li><strong>New MySQL identity</strong>
+              <span>Moved away the copied <code>auto.cnf</code> so MySQL generated a new <code>server_uuid</code>. Replication refuses two servers with the same one.</span></li>
+          <li><strong>Private network</strong>
+              <span>Both servers are in the <code>default</code> security group, which lets its members talk to each other. Nothing extra opened to the internet.</span></li>
+        </ol>
+      </section>
+
+      <img class="levea" src="static/gifs/zoowalk.gif" alt="zoowalk">
+
+      <!-- 4. Storage layout -->
+      <h2><span class="nro">04</span> Where things live</h2>
+      <section>
+        <div class="kortit">
+          <div class="kortti">
+            <div class="nimi">Server A</div>
+            <dl class="polut">
+              <dt>/var/www/html</dt>
+              <dd>Website files. This is what gets backed up.</dd>
+              <dt>/var/lib/mysql</dt>
+              <dd>Database, source of replication</dd>
+              <dt>/etc/mysql/mysql.conf.d/replikointi.cnf</dt>
+              <dd>Replication settings</dd>
+            </dl>
+          </div>
+          <div class="kortti">
+            <div class="nimi">Server B</div>
+            <dl class="polut">
+              <dt>/srv/varmuuskopiot/nettisivu/</dt>
+              <dd>Hourly archives, <code>nettisivu-YYYY-MM-DD_HHMM.tar.gz</code></dd>
+              <dt>/srv/varmuuskopiot/varmuuskopio.log</dt>
+              <dd>One OK or FAIL line per run</dd>
+              <dt>/srv/varmuuskopiot/palautustesti/</dt>
+              <dd>Restore test</dd>
+              <dt>/var/lib/mysql</dt>
+              <dd>Replicated database</dd>
+              <dt>/usr/local/bin/nettisivun-varmuuskopiointi</dt>
+              <dd>Backup script</dd>
+              <dt>/etc/cron.d/nettisivun-varmuuskopiointi</dt>
+              <dd>Hourly schedule</dd>
+            </dl>
+          </div>
+        </div>
+        <p class="muted">Backups are outside <code>/var/www</code>, so the web server can never serve them.</p>
+      </section>
+
+      <img class="levea" src="static/gifs/appeal.gif" alt="appeal">
+
+      <!-- 5. Users and permissions -->
+      <h2><span class="nro">05</span> Users and permissions</h2>
+      <section>
+        <p class="muted">One job, one user, the smallest rights that work.</p>
+
+        <h3>Linux users</h3>
+        <table>
+          <tr><th>User</th><th>Server</th><th>Can</th><th>Cannot</th></tr>
+          <tr><td><code>ubuntu</code></td><td>A, B</td><td>Administer with sudo</td><td>Log in with a password (SSH key only)</td></tr>
+          <tr><td><code>varmuuskopio</code></td><td>B</td><td>Run backups, own the archives and the SSH key</td><td>Log in (<code>nologin</code>), use sudo</td></tr>
+          <tr><td><code>varmuuskopio</code></td><td>A</td><td>Read public files such as <code>/var/www/html</code></td><td>Log in with a password, use sudo, connect from anywhere but B</td></tr>
+        </table>
+        <p class="muted">A only accepts the backup key from B's private IP:
+           <code>from="&lt;B&gt;",restrict</code> in <code>authorized_keys</code> also blocks forwarding and terminals.</p>
+
+        <h3>Database users</h3>
+        <table>
+          <tr><th>User</th><th>Rights</th><th>Used by</th></tr>
+          <tr><td><code>laskuri</code></td><td>Read + write <code>laskuri</code></td><td>A's counter</td></tr>
+          <tr><td><code>replikointi</code></td><td><code>REPLICATION SLAVE</code>, SSL required, only from B</td><td>B, fetching changes</td></tr>
+          <tr><td><code>lukija</code></td><td><code>SELECT</code> on <code>laskuri.visits</code></td><td>This page (created on A, replicated to B)</td></tr>
+          <tr><td><code>root</code></td><td>Everything</td><td>Admin only, via <code>sudo mysql</code></td></tr>
+        </table>
+
+        <h3>Ownership and modes</h3>
+        <table>
+          <tr><th>Path</th><th>Owner</th><th>Mode</th><th>Why</th></tr>
+          <tr><td><code>/srv/varmuuskopiot</code></td><td>varmuuskopio</td><td><span class="lappu">700</span></td><td>Nobody else can enter</td></tr>
+          <tr><td>Archives, log</td><td>varmuuskopio</td><td><span class="lappu">600</span></td><td><code>umask 077</code> in the script</td></tr>
+          <tr><td>SSH keys, <code>.ssh</code></td><td>varmuuskopio</td><td><span class="lappu">600</span> / <span class="lappu">700</span></td><td>SSH rejects open key files</td></tr>
+          <tr><td>Backup script</td><td>root</td><td><span class="lappu">755</span></td><td>Anyone can run it, only root can change it</td></tr>
+          <tr><td>cron file</td><td>root</td><td><span class="lappu">644</span></td><td>cron ignores files others can write</td></tr>
+          <tr><td>DB password files in <code>/etc</code></td><td>root</td><td><span class="lappu">600</span></td><td>Never in GitHub or on this page</td></tr>
+        </table>
+      </section>
+
+      <img class="levea" src="static/gifs/wakeup.gif" alt="wakeup">
+
+      <!-- 6. Backups and replication -->
+      <h2><span class="nro">06</span> Backups vs. replication</h2>
+      <section>
+        <table>
+          <tr><th></th><th>Hourly backup</th><th>Replication</th></tr>
+          <tr><td class="rivi-otsake">Tool</td><td>cron + Bash script</td><td>MySQL 8.4, GTID</td></tr>
+          <tr><td class="rivi-otsake">When</td><td>Every hour at :15 UTC</td><td>Continuously, within seconds</td></tr>
+          <tr><td class="rivi-otsake">What</td><td>A's <code>/var/www/html</code></td><td>A's <code>laskuri</code> database</td></tr>
+          <tr><td class="rivi-otsake">How</td><td>B pulls a <code>tar.gz</code> over SSH</td><td>B reads A's change log over SSL</td></tr>
+          <tr><td class="rivi-otsake">Keeps</td><td>24 timestamped versions</td><td>Only the current state</td></tr>
+        </table>
+
+        <div class="huomio">
+          <p class="otsikko">Why replication does not replace backups</p>
+          <p>Replication copies every change within seconds, mistakes included. Delete all rows on A and they are gone
+             from B a moment later. It keeps no history to go back to. Backups are separate copies from different
+             points in time. Replication protects against losing a server; backups protect against losing data.</p>
+        </div>
+
+        <details>
+          <summary>How the backup script works</summary>
+          <ul>
+            <li>cron line: <code>15 * * * * varmuuskopio /usr/local/bin/nettisivun-varmuuskopiointi</code></li>
+            <li>Runs <code>tar -czf - -C /var/www html</code> on A over SSH and streams the archive to B
+                (key auth, <code>BatchMode=yes</code>, private network).</li>
+            <li>Writes to <code>.inprogress</code> first and renames only when complete, so a broken file never looks like a backup.</li>
+            <li>Logs OK with size and tar exit code, or FAIL. Deletes everything older than the 24 newest.</li>
+            <li>tar exit code 1 ("file changed while reading") counts as OK, because the Week 3 report on A changes every minute.</li>
+          </ul>
+        </details>
+
+        <details>
+          <summary>How replication was set up</summary>
+          <ul>
+            <li>A: <code>server-id 1</code>, <code>gtid_mode ON</code>, MySQL listening on <code>127.0.0.1</code> and its private IP only.</li>
+            <li>B: <code>server-id 2</code>, <code>gtid_mode ON</code>, <code>read_only</code> + <code>super_read_only</code>.
+                Only the replication thread can write.</li>
+            <li>B seeded with <code>mysqldump --single-transaction --set-gtid-purged=ON</code> from A,
+                then started with <code>SOURCE_AUTO_POSITION=1</code> and <code>SOURCE_SSL=1</code>.</li>
+          </ul>
+        </details>
+      </section>
+
+      <img class="levea" src="static/gifs/nahwin.gif" alt="nahwin">
+
+      <!-- 7. Test results -->
+      <h2><span class="nro">07</span> Test results</h2>
+      <section>
+        <table>
+          <tr><th>Test</th><th>Result</th><th>Evidence</th></tr>
+          <tr><td>Both pages public</td><td><span class="lappu todo">TODO</span></td>
+              <td>FILL IN</td></tr>
+          <tr><td>Load on A shows up on B</td><td><span class="lappu pass">PASS</span></td>
+              <td>After loading A's page, <code>COUNT(*)</code> on B matched A</td></tr>
+          <tr><td>Load on B does not count</td><td><span class="lappu todo">TODO</span></td>
+              <td>FILL IN</td></tr>
+          <tr><td>Writes on B blocked</td><td><span class="lappu pass">PASS</span></td>
+              <td>root: <code>--super-read-only</code> error &middot; lukija: <code>INSERT command denied</code></td></tr>
+          <tr><td>Replication healthy</td><td><span class="lappu pass">PASS</span></td>
+              <td>IO <code>Yes</code>, SQL <code>Yes</code>, <code>Seconds_Behind_Source 0</code>, no errors</td></tr>
+          <tr><td>Scheduled backups</td><td><span class="lappu pass">PASS</span></td>
+              <td>Every hour since 2026-11-20 16:15 UTC, all OK, about 65 MB each</td></tr>
+          <tr><td>Old backups removed</td><td><span class="lappu pass">PASS</span></td>
+              <td>Exactly 24 archives left after more than 24 runs</td></tr>
+          <tr><td>Restore matches original</td><td><span class="lappu pass">PASS</span></td>
+              <td><code>html/index.html</code> restored to <code>palautustesti/</code>, same <code>sha256sum</code> as on A (<code>3acb1016…e5d8</code>)</td></tr>
+          <tr><td>B survives a reboot</td><td><span class="lappu todo">TODO</span></td>
+              <td>FILL IN</td></tr>
+        </table>
+        <p class="muted">All times UTC, like both servers (Finnish time is UTC+2, or UTC+3 in summer).</p>
+      </section>
+
+      <img class="levea" src="static/gifs/im4.png" alt="im4">
+
+      <!-- 8. Problem solved -->
+      <h2><span class="nro">08</span> Problem I solved</h2>
+      <section>
+        <div class="ongelma">
+          <div class="avain">Problem</div>
+          <div>After setting <code>bind-address = 127.0.0.1,192.168.1.33</code> on A, MySQL still listened only on <code>127.0.0.1</code>.</div>
+          <div class="avain">Cause</div>
+          <div><code>mysqld --print-defaults</code> showed the setting twice. My file <code>99-replikointi.cnf</code> was read
+               before Ubuntu's <code>mysqld.cnf</code> (digits sort before letters), and the last value wins.</div>
+          <div class="avain">Fix</div>
+          <div>Renamed it to <code>replikointi.cnf</code> so it loads last. <code>ss -tlnp</code> then showed both addresses.</div>
+          <div class="avain">Lesson</div>
+          <div>Check what a service actually reads, and run <code>mysqld --validate-config</code> before restarting a live database.</div>
+        </div>
       </section>
 
       <p class="keskella">
@@ -173,19 +639,20 @@
         </a>
       </p>
 
-      <img class="levea" src="static/gifs/laughing.gif" alt="laughing">
-
+      <img class="levea" src="static/gifs/nonii.gif" alt="nonii">
     </main>
 
     <aside class="sivupalkki">
-      <img src="static/gifs/jordan.gif" alt="jordan">
+      <img src="static/gifs/sigma.gif" alt="sigma">
     </aside>
 
   </div>
-</body>
-    <nav class="valikko">
-      <a href="/">Viikko1</a>
-    <a href="/viikko2/">Viikko 2</a>
-    <a href="/viikko3/">Viikko 3</a>
+
+  <nav class="valikko">
+    <a href="http://195.148.20.88/">Viikko 1</a>
+    <a href="http://195.148.20.88/viikko2/">Viikko 2</a>
+    <a href="http://195.148.20.88/viikko3/">Viikko 3</a>
+    <a href="/viikko4/">Viikko 4</a>
   </nav>
+</body>
 </html>
