@@ -1,0 +1,9 @@
+# Replikoinnin kohde (palvelin B), vain luku
+# Asennetaan: /etc/mysql/mysql.conf.d/replikointi.cnf
+# bind-address jää oletukseksi (127.0.0.1): B:n MySQL:ään ei oteta yhteyttä muualta.
+[mysqld]
+server-id = 2
+gtid_mode = ON
+enforce_gtid_consistency = ON
+read_only = ON
+super_read_only = ON

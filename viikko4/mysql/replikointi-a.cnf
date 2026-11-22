@@ -1,0 +1,9 @@
+# Replikoinnin lähde (palvelin A)
+# Asennetaan: /etc/mysql/mysql.conf.d/replikointi.cnf
+# Nimen pitää alkaa kirjaimella, joka on aakkosissa m:n jälkeen,
+# jotta tiedosto luetaan mysqld.cnf:n jälkeen ja sen asetukset jäävät voimaan.
+[mysqld]
+server-id = 1
+bind-address = 127.0.0.1,A_SISAVERKON_IP
+gtid_mode = ON
+enforce_gtid_consistency = ON
