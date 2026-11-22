@@ -592,12 +592,12 @@
       <section>
         <table>
           <tr><th>Test</th><th>Result</th><th>Evidence</th></tr>
-          <tr><td>Both pages public</td><td><span class="lappu todo">TODO</span></td>
-              <td>FILL IN</td></tr>
+          <tr><td>Both pages public</td><td><span class="lappu pass">PASS</span></td>
+              <td>Both open from outside cPouta (home network). The HTTP rule in the security group allows <code>0.0.0.0/0</code>.</td></tr>
           <tr><td>Load on A shows up on B</td><td><span class="lappu pass">PASS</span></td>
               <td>After loading A's page, <code>COUNT(*)</code> on B matched A</td></tr>
-          <tr><td>Load on B does not count</td><td><span class="lappu todo">TODO</span></td>
-              <td>FILL IN</td></tr>
+          <tr><td>Load on B does not count</td><td><span class="lappu pass">PASS</span></td>
+              <td>Reloaded this page 5 times: it stayed at 147, and <code>COUNT(*)</code> on A was 147 before and after</td></tr>
           <tr><td>Writes on B blocked</td><td><span class="lappu pass">PASS</span></td>
               <td>root: <code>--super-read-only</code> error &middot; lukija: <code>INSERT command denied</code></td></tr>
           <tr><td>Replication healthy</td><td><span class="lappu pass">PASS</span></td>
@@ -608,8 +608,9 @@
               <td>Exactly 24 archives left after more than 24 runs</td></tr>
           <tr><td>Restore matches original</td><td><span class="lappu pass">PASS</span></td>
               <td><code>html/index.html</code> restored to <code>palautustesti/</code>, same <code>sha256sum</code> as on A (<code>3acb1016…e5d8</code>)</td></tr>
-          <tr><td>B survives a reboot</td><td><span class="lappu todo">TODO</span></td>
-              <td>FILL IN</td></tr>
+          <tr><td>B survives a reboot</td><td><span class="lappu pass">PASS</span></td>
+              <td>Rebooted at 00:13 UTC: nginx, mysql, replikasivu and cron active, replication Yes / Yes / 0,
+                  a new load on A showed up here (148), backup at 00:15:04 UTC logged OK</td></tr>
         </table>
         <p class="muted">All times UTC, like both servers (Finnish time is UTC+2, or UTC+3 in summer).</p>
       </section>
