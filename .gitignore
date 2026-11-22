@@ -3,4 +3,5 @@ __pycache__/
 .env
 viikko2/static/gifs/
 viikko3/static/gifs/
+viikko4/static/gifs/
 .vscode/

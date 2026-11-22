@@ -1,47 +1,54 @@
-# Linuxkurssi – viikko 2: kävijälaskuri
+# Viikko 2: kävijälaskuri
 
-Python (Flask) -verkkosovellus, joka näyttää MySQL-tietokantaan tallentuvan käyntimäärän.
+Flask-sovellus, joka tallentaa jokaisen sivun latauksen MySQL-tietokantaan ja näyttää latausten määrän.
 
-## Arkkitehtuuri
+Sivu: http://195.148.20.88/viikko2/
+
+## Miten se toimii
 
 ```
-Selain → Nginx (portti 80)
-           ├── /          → /var/www/html (viikko 1, staattinen)
-           └── /viikko2/  → Gunicorn 127.0.0.1:5000 → Flask → MySQL
+Selain → Nginx → Gunicorn (127.0.0.1:5000) → Flask → MySQL
 ```
 
-- **Nginx** toimii reverse proxyna, ja vain portti 80 on auki internetiin.
-- **Gunicorn** ajaa Flask-sovellusta systemd-palveluna (`deploy/laskuri.service`).
-- **MySQL**: jokainen sivun lataus lisää `visits`-tauluun rivin, ja käyntimäärä on `COUNT(*)`.
-- Kaikki palvelut käynnistyvät automaattisesti systemd:n kautta.
-- Tietokannan tunnukset ovat palvelimella tiedostossa `/etc/laskuri.env`, eivät repossa.
+Jokainen lataus lisää `visits`-tauluun rivin. Sivulla näkyvä luku on rivien määrä.
 
-## Käyttöönotto (Ubuntu)
+## Tiedostot
+
+| Tiedosto | Mitä |
+|---|---|
+| `laskuri.py` | Sovellus |
+| `templates/index.html` | Sivun pohja |
+| `schema.sql` | Tietokannan taulu |
+| `requirements.txt` | Python-paketit |
+| `.env.example` | Malli tunnuksille. Oikea tiedosto on palvelimella `/etc/laskuri.env`. |
+| `deploy/laskuri.service` | systemd-palvelu |
+| `deploy/nginx-viikko2.conf` | Nginx-lohko |
+
+## Käyttöönotto
 
 ```bash
-sudo apt install nginx mysql-server python3-venv
-git clone https://github.com/Astrlol/linuxkurssi.git ~/linuxkurssi
 cd ~/linuxkurssi
 python3 -m venv venv
-venv/bin/pip install -r requirements.txt
+venv/bin/pip install -r viikko2/requirements.txt
 
-# Tietokanta: luo ensin tietokanta ja käyttäjä, sitten taulu
-sudo mysql laskuri < schema.sql
+# Tietokanta ja käyttäjä luodaan ensin MySQL:ssä, sitten taulu:
+sudo mysql laskuri < viikko2/schema.sql
 
-# Tunnukset: kopioi malli ja vaihda salasana
-sudo cp .env.example /etc/laskuri.env
+# Tunnukset (vaihda salasana):
+sudo cp viikko2/.env.example /etc/laskuri.env
 sudo chmod 600 /etc/laskuri.env
 
-# Palvelu ja Nginx
-sudo cp deploy/laskuri.service /etc/systemd/system/
+# Palvelu:
+sudo cp viikko2/deploy/laskuri.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now laskuri
-# Lisää deploy/nginx-viikko2.conf:n sisältö Nginxin server-lohkoon
-sudo nginx -t && sudo systemctl reload nginx
 ```
+
+Lisää `deploy/nginx-viikko2.conf`:n sisältö Nginxin `server`-lohkoon ja aja `sudo nginx -t && sudo systemctl reload nginx`.
 
 ## Päivitys
 
 ```bash
-cd ~/linuxkurssi && git pull && sudo systemctl restart laskuri
+git pull
+sudo systemctl restart laskuri
 ```
