@@ -15,4 +15,3 @@ Linux-palvelinten ylläpidon kurssin viikkotehtävät. Palvelimet pyörivät CSC
 
 Molempien palvelinten ajat ovat UTC:ssä.
 
-Repossa ei ole salasanoja, SSH-avaimia, tietokantadumppeja, varmuuskopioita eikä gif-kuvia.
